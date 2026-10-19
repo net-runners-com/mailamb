@@ -1,0 +1,44 @@
+name = "mailamb"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ---------- AI (Workers AI) ----------
+[ai]
+binding = "AI"
+
+# ---------- Vectorize (ベクトル検索) ----------
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "mailamb-docs"
+
+# ---------- D1 (メタデータ) ----------
+[[d1_databases]]
+binding = "DB"
+database_name = "mailamb"
+database_id = "4a672c32-ccad-4815-a9db-de53bef28c9a"
+migrations_dir = "migrations"
+
+# ---------- R2 (原本) ----------
+[[r2_buckets]]
+binding = "DOCS"
+bucket_name = "mailamb-docs"
+
+# ---------- KV (処理済みMessage-ID) ----------
+[[kv_namespaces]]
+binding = "PROCESSED"
+id = "8fa031e60dab4d39957d5ffc2a79b967"
+
+# ---------- 環境変数 ----------
+[vars]
+GEN_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+EMBED_MODEL = "@cf/baai/bge-m3"
+RAG_THRESHOLD = "0.5"
+RAG_TOP_K = "5"
+TEMPERATURE = "0.1"
+
+# API Key は secret で入れる:
+# wrangler secret put API_KEY
+
+[observability]
+enabled = true

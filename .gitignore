@@ -1,0 +1,29 @@
+# Credentials / secrets
+.env
+.env.local
+poc/.env
+worker/.dev.vars
+worker-email/.dev.vars
+.cfauth
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build artifacts
+dist/
+.next/
+.wrangler/
+.cache/
+
+# Generated output (PoC results)
+poc/out/
+
+# Large media (video demo - too big for git)
+*.mov
+*.mp4
+
+# OS/editor
+.DS_Store
+*.swp
+.vscode/

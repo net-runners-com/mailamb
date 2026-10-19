@@ -1,0 +1,195 @@
+[
+  {
+    "id": "inq-001",
+    "subject": "コーポレートサイトリニューアルの件",
+    "from": { "name": "田中 一郎", "email": "tanaka@example-corp.co.jp" },
+    "received_at": "2026-10-15T09:12:00+09:00",
+    "message_id": "<a1b2c3@mail.example-corp.co.jp>",
+    "body": "はじめまして。株式会社サンプル商事の田中と申します。\n現在運用中のコーポレートサイトのリニューアルを検討しており、お見積もりをお願いしたくご連絡いたしました。\n\n■現状\n- 10年前にWordPressで制作\n- スマホ対応が不十分\n- お問い合わせ件数が年々減少\n\n■希望\n- デザイン一新、スマホファースト\n- 多言語対応(日英)\n- 公開希望時期: 来年度上期中\n- 予算感: 300〜500万円程度\n\n概算のお見積もりと、進め方のご提案をいただけますでしょうか。",
+    "attachments": [],
+    "expected_category": "新規見積依頼(コーポレート)",
+    "note": "典型的な大型案件。ヒアリング要項を返す流れ"
+  },
+  {
+    "id": "inq-002",
+    "subject": "ランディングページ制作のお見積り希望",
+    "from": { "name": "佐藤 美咲", "email": "sato@startup.io" },
+    "received_at": "2026-10-15T10:04:00+09:00",
+    "message_id": "<lp01@startup.io>",
+    "body": "お世話になります。\n新サービスのローンチに合わせてLPを1本制作したく、お見積もりをお願いします。\n\n- 内容: BtoB SaaSの体験申込LP\n- 1ページ構成(縦長)、フォーム1個\n- デザインラフは当方で用意可能\n- 公開希望: 11月中旬\n\nよろしくお願いいたします。",
+    "attachments": [],
+    "expected_category": "新規見積依頼(LP)",
+    "note": "小規模・短納期。標準パッケージ提示"
+  },
+  {
+    "id": "inq-003",
+    "subject": "ECサイト新規制作の相談",
+    "from": { "name": "山田 花子", "email": "hanako.yamada@gmail.com" },
+    "received_at": "2026-10-15T11:30:00+09:00",
+    "message_id": "<yama2@gmail.com>",
+    "body": "ハンドメイドアクセサリーの個人ネットショップを始めたいと思っています。\nShopifyかSTORESのような既製のサービスではなく、独自ドメインで本格的に運用したいです。\n商品数は最初30点程度、将来的に100点まで。決済はクレカと銀行振込。\n予算は50万円くらいまでなら出せます。\n\n可能でしょうか？",
+    "attachments": [],
+    "expected_category": "新規見積依頼(EC/個人)",
+    "note": "予算と要件のミスマッチ。期待値調整が必要"
+  },
+  {
+    "id": "inq-004",
+    "subject": "サイト改修のご相談（会員機能追加）",
+    "from": { "name": "鈴木 健太", "email": "k.suzuki@legal-office.jp" },
+    "received_at": "2026-10-15T13:22:00+09:00",
+    "message_id": "<legal03@legal-office.jp>",
+    "body": "2年前に御社に制作いただいた弊事務所サイトですが、\n会員向け資料ダウンロード機能を追加したいと考えております。\n\n- ログイン後に専用ページ閲覧\n- PDFダウンロード\n- 会員数は50名程度\n\n追加改修の見積もりをお願いできますでしょうか。",
+    "attachments": [],
+    "expected_category": "既存サイト改修",
+    "note": "既存クライアント。過去対応ログからコンテキスト引けると強い"
+  },
+  {
+    "id": "inq-005",
+    "subject": "SEO対策のご相談",
+    "from": { "name": "高橋 翔", "email": "takahashi@localshop.jp" },
+    "received_at": "2026-10-15T14:48:00+09:00",
+    "message_id": "<seo-req@localshop.jp>",
+    "body": "ホームページを持っていますが検索で全然出てきません。\n特に「地域名+業種」で上位に出したいです。\nSEO対策をお願いするといくらくらいかかりますか？またどのくらいで効果が出ますか？",
+    "attachments": [],
+    "expected_category": "SEO/集客相談",
+    "note": "期待値調整と、初回ミーティング設定"
+  },
+  {
+    "id": "inq-006",
+    "subject": "Re: 制作スケジュールについて",
+    "from": { "name": "伊藤 さくら", "email": "ito@fashion-brand.com" },
+    "received_at": "2026-10-15T15:10:00+09:00",
+    "message_id": "<reply-002@fashion-brand.com>",
+    "in_reply_to": "<thread-root-001@netrunners.jp>",
+    "references": ["<thread-root-001@netrunners.jp>", "<thread-002@fashion-brand.com>"],
+    "thread_history": [
+      {
+        "from": "伊藤 さくら",
+        "at": "2026-10-10T10:00:00+09:00",
+        "body": "新ブランドのWebサイト制作をお願いしたく、資料請求いたします。"
+      },
+      {
+        "from": "netrunners（自社）",
+        "at": "2026-10-10T15:30:00+09:00",
+        "body": "資料をお送りいたします。初回打ち合わせ日程をお知らせください。"
+      },
+      {
+        "from": "伊藤 さくら",
+        "at": "2026-10-12T09:15:00+09:00",
+        "body": "10/14 14時でお願いします。公開予定は12月1日です。"
+      },
+      {
+        "from": "netrunners（自社）",
+        "at": "2026-10-12T11:00:00+09:00",
+        "body": "承知しました。打ち合わせ後にスケジュールをご提示します。"
+      }
+    ],
+    "body": "打ち合わせありがとうございました。\n改めて、12/1公開に間に合うかどうか、具体的な制作スケジュールをいただけますか？\nまた、商品撮影は御社でお願いできるのでしょうか？",
+    "attachments": [],
+    "expected_category": "納期確認(既存進行中案件)",
+    "note": "スレッド文脈テスト用。過去のやり取りを踏まえた返信が必要"
+  },
+  {
+    "id": "inq-007",
+    "subject": "サイト保守・運用の料金について",
+    "from": { "name": "松本 大輔", "email": "matsumoto@shop.local" },
+    "received_at": "2026-10-15T16:02:00+09:00",
+    "message_id": "<maint01@shop.local>",
+    "body": "別の制作会社で作ってもらったWordPressサイトを運営しています。\n現状、更新を自分でやっていますが時間が取れず、保守を外注したいと考えています。\n月額のプランがあれば教えてください。",
+    "attachments": [],
+    "expected_category": "保守運用問い合わせ",
+    "note": "他社制作サイトの保守引き受け。初期診断の提案が必要"
+  },
+  {
+    "id": "inq-008",
+    "subject": "御社の実績資料をいただきたい",
+    "from": { "name": "渡辺 由美", "email": "y.watanabe@consult-firm.jp" },
+    "received_at": "2026-10-15T16:30:00+09:00",
+    "message_id": "<ref-req@consult-firm.jp>",
+    "body": "弊社クライアント向けに制作会社のご提案を検討しております。\n御社の制作実績が分かる資料があればお送りいただけませんでしょうか。\n特にBtoBコーポレートサイトの事例が見たいです。",
+    "attachments": [],
+    "expected_category": "資料請求",
+    "note": "資料PDF送付＋折返しの導線作り"
+  },
+  {
+    "id": "inq-009",
+    "subject": "契約書と支払い条件について質問です",
+    "from": { "name": "小林 翔太", "email": "kobayashi@newventure.co.jp" },
+    "received_at": "2026-10-15T17:15:00+09:00",
+    "message_id": "<contract-q@newventure.co.jp>",
+    "body": "先日お見積もりをいただいた件で、契約前に確認させてください。\n\n1. 支払いは着手金50%・検収後50%で合っていますか？\n2. 修正は何回まで無料ですか？\n3. 著作権の帰属はどうなりますか？\n4. 契約書のドラフトをいただくことは可能ですか？\n\nお忙しいところ恐れ入りますがよろしくお願いします。",
+    "attachments": [],
+    "expected_category": "契約・支払い条件",
+    "note": "複数質問。箇条書きで漏れなく回答"
+  },
+  {
+    "id": "inq-010",
+    "subject": "ドメイン移管の件でお願いしたいです",
+    "from": { "name": "中村 洋子", "email": "nakamura@clinic.jp" },
+    "received_at": "2026-10-15T18:00:00+09:00",
+    "message_id": "<domain@clinic.jp>",
+    "body": "現在お名前.comで管理しているドメインを、御社経由の管理に移管したいです。\nサーバーも含めて一式お任せしたいのですが、手順と費用を教えてください。",
+    "attachments": [],
+    "expected_category": "ドメイン・サーバ関連",
+    "note": "インフラ系。保守プランへの誘導"
+  },
+  {
+    "id": "inq-011",
+    "subject": "サイトのお問い合わせフォームが動きません",
+    "from": { "name": "藤田 恵", "email": "fujita@existing-client.co.jp" },
+    "received_at": "2026-10-15T19:22:00+09:00",
+    "message_id": "<urgent-bug@existing-client.co.jp>",
+    "body": "本日の夕方からお問い合わせフォームの送信ボタンを押してもエラーになるという連絡が複数来ています。\n至急対応いただけますでしょうか。",
+    "attachments": [],
+    "expected_category": "既存サイトの緊急不具合",
+    "note": "緊急度高・既存クライアント。優先トリアージが要る"
+  },
+  {
+    "id": "inq-012",
+    "subject": "バナー画像だけの制作は可能ですか",
+    "from": { "name": "斉藤 正", "email": "saito.m@banner-only.jp" },
+    "received_at": "2026-10-15T20:11:00+09:00",
+    "message_id": "<banner@banner-only.jp>",
+    "body": "Web広告用のバナーを1枚だけ作ってほしいです。\nサイズは3種類(728x90, 300x250, 160x600)。\n予算は1万円以内でお願いしたいです。",
+    "attachments": [],
+    "expected_category": "対応範囲外",
+    "note": "対応範囲外。丁重にお断りしつつ代替案を提示"
+  },
+  {
+    "id": "inq-013",
+    "subject": "【営業】Webマーケティング支援のご提案",
+    "from": { "name": "営業部 木村", "email": "kimura@sales-agency.co.jp" },
+    "received_at": "2026-10-15T09:45:00+09:00",
+    "message_id": "<sales01@sales-agency.co.jp>",
+    "body": "突然のご連絡失礼いたします。弊社では企業様向けのWebマーケティング支援サービスを提供しております。ぜひ一度お話を...",
+    "attachments": [],
+    "expected_category": "返信不要(営業)",
+    "note": "スパム的営業メール。前処理フィルタでskipすべき"
+  },
+  {
+    "id": "inq-014",
+    "subject": "御社の採用について",
+    "from": { "name": "川村 翔平", "email": "shohei.k@gmail.com" },
+    "received_at": "2026-10-15T21:30:00+09:00",
+    "message_id": "<recruit@gmail.com>",
+    "body": "Webデザイナーとして求人情報を拝見しご連絡いたしました。\nポートフォリオを添付します。ご検討いただけますと幸いです。",
+    "attachments": [
+      { "filename": "portfolio.pdf", "size": 2457600 }
+    ],
+    "expected_category": "採用(別対応)",
+    "note": "採用担当に転送。自動下書き対象外にできる前処理が理想"
+  },
+  {
+    "id": "inq-015",
+    "subject": "Re: 公開後の修正について",
+    "from": { "name": "山本 大", "email": "yamamoto@finished-project.jp" },
+    "received_at": "2026-10-15T22:00:00+09:00",
+    "message_id": "<fix01@finished-project.jp>",
+    "in_reply_to": "<deliver-done@netrunners.jp>",
+    "references": ["<kickoff@finished-project.jp>", "<deliver-done@netrunners.jp>"],
+    "body": "先月公開していただいたサイトの件、トップページのメインビジュアルを別の写真に差し替えたいのですが対応可能でしょうか。\nまた、お知らせ欄に新しい記事を1本追加したいです。",
+    "attachments": [],
+    "expected_category": "公開後の修正依頼",
+    "note": "保守契約の有無を確認し、場合によって保守プラン提案"
+  }
+]

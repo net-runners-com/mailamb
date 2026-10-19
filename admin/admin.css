@@ -1,0 +1,157 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #fff;
+  --fg: #1a1f24;
+  --muted: #6b7280;
+  --border: #e2e4ea;
+  --accent: #2a7fb8;
+  --accent-weak: #e1f0fa;
+  --warn: #d49a00;
+  --warn-weak: #fff4e1;
+  --ok: #2a7c3a;
+  --ok-weak: #e8f6e8;
+  --danger: #c3443e;
+  --danger-weak: #fde3e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11141a;
+    --surface: #1a1f26;
+    --fg: #e5e7eb;
+    --muted: #8d949d;
+    --border: #272d36;
+    --accent: #4aa3d5;
+    --accent-weak: #152a3a;
+    --warn: #e3b43b;
+    --warn-weak: #342711;
+    --ok: #6cc07a;
+    --ok-weak: #182a1b;
+    --danger: #de7571;
+    --danger-weak: #35191b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 14px/1.5 -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.brand { font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
+.brand .sub { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 4px; }
+
+.tabs { display: flex; gap: 4px; flex: 1; }
+.tab {
+  background: transparent; border: 0; padding: 6px 14px;
+  border-radius: 4px; cursor: pointer; color: var(--muted); font-weight: 500;
+  font-size: 13px;
+}
+.tab.active { background: var(--accent-weak); color: var(--accent); }
+.tab:hover { background: var(--accent-weak); }
+
+.connection { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.pending { background: var(--warn); }
+.dot.ok { background: var(--ok); }
+.dot.ng { background: var(--danger); }
+
+main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.pane { display: none; }
+.pane.active { display: block; }
+
+.pane-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+.pane-header h2 { margin: 0; font-size: 18px; }
+.pane-header .meta { color: var(--muted); font-size: 12px; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  overflow: hidden; font-size: 13px;
+}
+th, td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  text-align: left;
+}
+th {
+  background: var(--bg); color: var(--muted);
+  font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--bg); }
+
+.empty { text-align: center; color: var(--muted); font-style: italic; }
+
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+}
+.badge.claimed { background: var(--warn-weak); color: var(--warn); }
+.badge.replied { background: var(--ok-weak); color: var(--ok); }
+.badge.none { background: var(--border); color: var(--muted); }
+
+.viewers { display: flex; flex-wrap: wrap; gap: 4px; max-width: 220px; }
+.viewer-pill { padding: 1px 6px; background: var(--accent-weak); color: var(--accent); border-radius: 8px; font-size: 11px; }
+
+button {
+  padding: 6px 12px; border-radius: 4px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; font-size: 12px;
+}
+button.secondary { background: transparent; color: var(--accent); }
+button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+button.small { padding: 3px 8px; font-size: 11px; }
+button:hover { opacity: 0.9; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 16px; margin-bottom: 16px; max-width: 820px;
+}
+.form-card h3 { margin: 0 0 12px; font-size: 15px; }
+.form-card label { display: block; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
+.form-card .row { display: flex; gap: 12px; }
+.form-card .row label { flex: 1; }
+.form-card input, .form-card select, .form-card textarea {
+  display: block; width: 100%; margin-top: 4px;
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg); color: var(--fg); font-size: 13px; font-family: inherit;
+}
+.form-card textarea { font-family: ui-monospace, Menlo, monospace; font-size: 12px; resize: vertical; }
+.form-card .actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.form-card .hint { color: var(--muted); font-size: 11px; margin: 10px 0 0; }
+.msg { font-size: 12px; color: var(--muted); }
+.msg.ok { color: var(--ok); }
+.msg.ng { color: var(--danger); }
+
+.subject { font-weight: 500; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.intent { color: var(--muted); font-size: 12px; max-width: 320px; }
+.from { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.pane.modal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45); display: none;
+  align-items: flex-start; justify-content: center;
+  padding: 40px 16px; overflow-y: auto; z-index: 100;
+}
+.pane.modal.active { display: flex; }
+.modal-card {
+  background: var(--surface); border-radius: 8px; max-width: 820px; width: 100%;
+  padding: 20px; max-height: calc(100vh - 80px); overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.modal-header h3 { margin: 0; font-size: 16px; }
+.modal-section { margin-bottom: 16px; }
+.modal-section h4 { font-size: 12px; color: var(--muted); margin: 0 0 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+.modal-section pre { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px; font-size: 12px; white-space: pre-wrap; word-break: break-word; margin: 0; }
+.modal-section .kv { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }

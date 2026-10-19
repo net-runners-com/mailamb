@@ -1,0 +1,32 @@
+{
+  "name": "mailamb-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "ingest": "tsx scripts/01-ingest.ts",
+    "draft": "tsx scripts/02-draft.ts",
+    "eval": "tsx scripts/03-eval.ts",
+    "ui": "tsx scripts/04-serve.ts",
+    "mother": "tsx scripts/05-mother.ts",
+    "all": "pnpm ingest && pnpm draft && pnpm eval"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "imapflow": "^2.5.2",
+    "mailparser": "^3.9.40",
+    "nodemailer": "^10.1.2"
+  },
+  "devDependencies": {
+    "@types/mailparser": "^3.9.0",
+    "@types/node": "^22.9.0",
+    "@types/nodemailer": "^8.0.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

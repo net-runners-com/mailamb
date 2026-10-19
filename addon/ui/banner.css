@@ -1,0 +1,23 @@
+#mailamb-banner {
+  position: sticky;
+  top: 0;
+  z-index: 2147483647;
+  margin: 0 0 8px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font: 500 13px/1.4 -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+#mailamb-banner .mb-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#mailamb-banner .mb-time { font-weight: 400; font-size: 11px; opacity: 0.75; }
+#mailamb-banner .mb-pill { display: inline-block; padding: 1px 6px; border-radius: 8px; background: rgba(255,255,255,0.55); font-size: 11px; font-weight: 500; }
+#mailamb-banner.state-replied { background: #e8f6e8; color: #1f6a2d; border-left: 3px solid #2a7c3a; }
+#mailamb-banner.state-claimed { background: #fff4e1; color: #8a6300; border-left: 3px solid #d49a00; }
+#mailamb-banner.state-draft   { background: #e1f0fa; color: #1b5b85; border-left: 3px solid #2a7fb8; }
+#mailamb-banner.state-none    { background: #f0f0f0; color: #4b5563; border-left: 3px solid #9ca3af; }
+@media (prefers-color-scheme: dark) {
+  #mailamb-banner.state-replied { background: #152a1b; color: #8ad699; border-color: #4a8a4a; }
+  #mailamb-banner.state-claimed { background: #34271a; color: #e8c47a; border-color: #a77a30; }
+  #mailamb-banner.state-draft   { background: #142a3a; color: #7ebdd9; border-color: #3f8ab8; }
+  #mailamb-banner.state-none    { background: #22272e; color: #a0a7b0; border-color: #4b5563; }
+}
