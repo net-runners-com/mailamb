@@ -60,8 +60,8 @@
     "from": { "name": "伊藤 さくら", "email": "ito@fashion-brand.com" },
     "received_at": "2026-10-15T15:10:00+09:00",
     "message_id": "<reply-002@fashion-brand.com>",
-    "in_reply_to": "<thread-root-001@netrunners.jp>",
-    "references": ["<thread-root-001@netrunners.jp>", "<thread-002@fashion-brand.com>"],
+    "in_reply_to": "<thread-root-001@弊社.jp>",
+    "references": ["<thread-root-001@弊社.jp>", "<thread-002@fashion-brand.com>"],
     "thread_history": [
       {
         "from": "伊藤 さくら",
@@ -69,7 +69,7 @@
         "body": "新ブランドのWebサイト制作をお願いしたく、資料請求いたします。"
       },
       {
-        "from": "netrunners（自社）",
+        "from": "弊社（自社）",
         "at": "2026-10-10T15:30:00+09:00",
         "body": "資料をお送りいたします。初回打ち合わせ日程をお知らせください。"
       },
@@ -79,7 +79,7 @@
         "body": "10/14 14時でお願いします。公開予定は12月1日です。"
       },
       {
-        "from": "netrunners（自社）",
+        "from": "弊社（自社）",
         "at": "2026-10-12T11:00:00+09:00",
         "body": "承知しました。打ち合わせ後にスケジュールをご提示します。"
       }
@@ -185,8 +185,8 @@
     "from": { "name": "山本 大", "email": "yamamoto@finished-project.jp" },
     "received_at": "2026-10-15T22:00:00+09:00",
     "message_id": "<fix01@finished-project.jp>",
-    "in_reply_to": "<deliver-done@netrunners.jp>",
-    "references": ["<kickoff@finished-project.jp>", "<deliver-done@netrunners.jp>"],
+    "in_reply_to": "<deliver-done@弊社.jp>",
+    "references": ["<kickoff@finished-project.jp>", "<deliver-done@弊社.jp>"],
     "body": "先月公開していただいたサイトの件、トップページのメインビジュアルを別の写真に差し替えたいのですが対応可能でしょうか。\nまた、お知らせ欄に新しい記事を1本追加したいです。",
     "attachments": [],
     "expected_category": "公開後の修正依頼",
