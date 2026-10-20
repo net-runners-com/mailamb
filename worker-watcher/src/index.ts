@@ -18,6 +18,7 @@ type Env = {
   IMAP_PORT: string;
   IMAP_USER: string;
   IMAP_PASSWORD: string;
+  IMAP_INBOX: string;
   IMAP_DRAFTS: string;
   MAILAMB_API_KEY: string;
   IDLE_DURATION_MS: string;
@@ -53,8 +54,9 @@ async function runIdleWindow(env: Env): Promise<void> {
   try {
     await client.connect();
     await client.login();
-    const sel = await client.select("INBOX");
-    log(`SELECT INBOX exists=${sel.exists}`);
+    const inbox = env.IMAP_INBOX || "INBOX";
+    const sel = await client.select(inbox);
+    log(`SELECT ${inbox} exists=${sel.exists}`);
 
     // 既存のUNSEENを先に処理
     await processNewMails(client, env);
