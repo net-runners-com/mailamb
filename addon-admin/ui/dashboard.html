@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>mailamb 管理ダッシュボード</title>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">mailamb <span class="sub">管理ダッシュボード</span></div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="knowledge">ナレッジ</button>
+    <button class="tab" data-tab="add">+ 追加</button>
+    <button class="tab" data-tab="sent">送信履歴</button>
+    <button class="tab" data-tab="settings">設定</button>
+  </nav>
+  <div class="connection">
+    <span id="connStatus" class="dot pending"></span>
+    <span id="connLabel">接続確認中</span>
+    <button id="refreshBtn" class="small">更新</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ナレッジ一覧 -->
+<section id="pane-knowledge" class="pane active">
+  <div class="pane-header">
+    <h2>ナレッジ</h2>
+    <div class="meta" id="knowledgeMeta">—</div>
+  </div>
+  <table class="list">
+    <thead>
+      <tr>
+        <th>doc_id</th>
+        <th>タイプ</th>
+        <th>タイトル</th>
+        <th>カテゴリ</th>
+        <th>更新</th>
+        <th>状態</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="knowledgeBody">
+      <tr><td colspan="7" class="empty">読み込み中…</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ナレッジ追加 -->
+<section id="pane-add" class="pane">
+  <div class="pane-header"><h2>ナレッジ追加</h2></div>
+
+  <div class="form-card">
+    <h3>方法1: ファイルアップロード</h3>
+    <p class="hint">
+      <code>.eml</code>（メールエクスポート）/ <code>.txt</code> / <code>.md</code> を drag&amp;drop または選択。
+      .eml は Subject / 本文を自動抽出してフォームに反映します。
+    </p>
+    <div id="dropzone" class="dropzone">
+      ここにファイルを drag&amp;drop<br>
+      <small>または</small><br>
+      <input id="fileInput" type="file" accept=".eml,.txt,.md,.html" style="margin-top:8px;">
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3>方法2: 直接入力</h3>
+    <div class="row">
+      <label>doc_id<input id="k_doc_id" placeholder="tpl-xxx-001"></label>
+      <label>タイプ
+        <select id="k_type">
+          <option value="template">template (定型文)</option>
+          <option value="past_case">past_case (過去対応)</option>
+          <option value="policy">policy (方針)</option>
+          <option value="reference">reference (参考資料)</option>
+        </select>
+      </label>
+    </div>
+    <label>タイトル<input id="k_title" placeholder="例: 新規見積(コーポレート)返信テンプレ"></label>
+    <div class="row">
+      <label>カテゴリ<input id="k_category" placeholder="例: estimate"></label>
+      <label>タグ (カンマ区切り)<input id="k_tags" placeholder="見積, コーポレート, 新規"></label>
+    </div>
+    <label>本文<textarea id="k_content" rows="12" placeholder="問い合わせへの返信文、または参照したい社内情報 (Markdown可)"></textarea></label>
+    <div class="actions">
+      <button id="k_save" class="primary">保存</button>
+      <button id="k_clear" class="secondary">クリア</button>
+      <span id="k_msg" class="msg"></span>
+    </div>
+  </div>
+</section>
+
+<!-- 送信履歴 -->
+<section id="pane-sent" class="pane">
+  <div class="pane-header">
+    <h2>送信履歴</h2>
+    <div class="meta" id="sentMeta">—</div>
+  </div>
+  <table class="list">
+    <thead>
+      <tr>
+        <th>日時</th>
+        <th>Message-ID</th>
+        <th>状態</th>
+        <th>スタッフ</th>
+      </tr>
+    </thead>
+    <tbody id="sentBody">
+      <tr><td colspan="4" class="empty">—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 設定 -->
+<section id="pane-settings" class="pane">
+  <h2>設定</h2>
+  <div class="form-card">
+    <label>Worker URL<input id="s_url" placeholder="https://mailamb.<sub>.workers.dev"></label>
+    <label>API Key<input id="s_key" type="password"></label>
+    <div class="actions">
+      <button id="s_save" class="primary">保存</button>
+      <span id="s_msg" class="msg"></span>
+    </div>
+    <p class="hint">
+      このブラウザ (TB拡張ストレージ) に保存されます。他 PC で使う時は再入力してください。
+    </p>
+  </div>
+</section>
+
+</main>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

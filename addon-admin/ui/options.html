@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>mailamb-admin 設定</title>
+<style>
+  body { font: 13px/1.5 -apple-system, "Hiragino Kaku Gothic ProN", sans-serif; padding: 18px 22px; width: 420px; }
+  .section { margin-bottom: 14px; }
+  .label { font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  input { width: 100%; padding: 7px 9px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
+  button { padding: 7px 16px; border-radius: 4px; border: 1px solid #2a7fb8; background: #2a7fb8; color: #fff; font-weight: 600; cursor: pointer; }
+  .msg { margin-left: 10px; font-size: 12px; color: #6b7280; }
+  .note { margin-top: 10px; font-size: 11px; color: #6b7280; line-height: 1.6; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1f26; color: #e5e7eb; }
+    input { background: #0f1419; color: #e5e7eb; border-color: #2e3540; }
+    .label, .note { color: #9aa49b; }
+  }
+</style>
+</head>
+<body>
+  <h3 style="margin:0 0 14px">mailamb-admin 設定</h3>
+
+  <div class="section">
+    <div class="label">Worker URL</div>
+    <input id="workerUrl" type="text" placeholder="https://mailamb.<sub>.workers.dev">
+  </div>
+
+  <div class="section">
+    <div class="label">API Key</div>
+    <input id="apiKey" type="password">
+  </div>
+
+  <button id="save">保存</button>
+  <span id="msg" class="msg"></span>
+
+  <p class="note">
+    TB ツールバーの <strong>mailamb 管理</strong> ボタンでダッシュボードが開きます。<br>
+    設定はダッシュボード内の「設定」タブからも変更可。
+  </p>
+
+  <script src="options.js"></script>
+</body>
+</html>
