@@ -1,51 +1,37 @@
 // mailamb-watcher
-// Cloudflare Workers 単体で IMAP IDLE を保持し、新着メールをリアルタイムに検知。
-// 新着があれば mailamb Worker (AI生成) → Drafts に APPEND まで Workers内で完結。
+// Cloudflare Workers で IMAP IDLE 55秒 窓を 1分ごとに開く "サーバーレス母艦"。
 //
-// 動作モード:
-//  1. scheduled handler (cron 1min): 保険起点。チェーン切れ検知時のみ起動。
-//  2. fetch handler /loop: 自己チェーンのエンドポイント。IDLEを一定時間保持して自分を再呼出。
+// 動作:
+//   cron 毎分 → scheduled handler →
+//     IMAP接続 → UNSEEN既存処理 → 55秒 IDLE で push待機 (新着を即処理) → 切断
+//   次の cron (1分後) に次の窓
+//   最大 5秒ギャップ、実質リアルタイム。
+//
+// シンプル・耐久性高・無料枠内。チェーンや heartbeat は使わない。
 
 import { ImapClient } from "./imap.ts";
 import { parseMail, buildReply } from "./parser.ts";
 
 type Env = {
-  SELF: Fetcher;
   MAILAMB: Fetcher;
   IMAP_HOST: string;
   IMAP_PORT: string;
   IMAP_USER: string;
   IMAP_PASSWORD: string;
-  IMAP_DRAFTS: string;        // "Drafts" or "INBOX.Drafts" or "下書き"
+  IMAP_DRAFTS: string;
   MAILAMB_API_KEY: string;
   IDLE_DURATION_MS: string;
-  HEARTBEAT_WINDOW_MS: string;
-  HEARTBEAT_KV?: KVNamespace;  // 任意: チェーン生存確認用 KV
 };
 
 const log = (...args: any[]) => console.log("[watcher]", ...args);
 
 export default {
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    // チェーン切れ検知。最後のループ時刻を見て、HEARTBEAT_WINDOW_MS 超えてなければ何もしない。
-    if (env.HEARTBEAT_KV) {
-      const last = await env.HEARTBEAT_KV.get("last_heartbeat");
-      if (last && Date.now() - parseInt(last) < parseInt(env.HEARTBEAT_WINDOW_MS)) {
-        log("heartbeat 新鮮、チェーン生存中、cron skip");
-        return;
-      }
-    }
-    log("cron 起点でチェーン開始");
-    ctx.waitUntil(env.SELF.fetch("https://self/loop"));
+    ctx.waitUntil(runIdleWindow(env));
   },
 
-  async fetch(req: Request, env: Env, ctx: ExecutionContext) {
+  async fetch(req: Request) {
     const url = new URL(req.url);
-    if (url.pathname === "/loop") {
-      // IDLE 保持 → 新着検知 → 処理 → チェーン
-      ctx.waitUntil(runLoop(env));
-      return new Response("chained");
-    }
     if (url.pathname === "/health") {
       return new Response(JSON.stringify({ ok: true, service: "mailamb-watcher" }), {
         headers: { "Content-Type": "application/json" },
@@ -55,64 +41,51 @@ export default {
   },
 };
 
-async function runLoop(env: Env): Promise<void> {
-  // heartbeat 更新
-  if (env.HEARTBEAT_KV) {
-    await env.HEARTBEAT_KV.put("last_heartbeat", String(Date.now()), { expirationTtl: 600 });
-  }
-
-  const duration = parseInt(env.IDLE_DURATION_MS) || 90_000;
-  let client: ImapClient | null = null;
+async function runIdleWindow(env: Env): Promise<void> {
+  const duration = parseInt(env.IDLE_DURATION_MS) || 55_000;
+  const client = new ImapClient({
+    host: env.IMAP_HOST,
+    port: parseInt(env.IMAP_PORT || "993"),
+    user: env.IMAP_USER,
+    password: env.IMAP_PASSWORD,
+    logger: (m) => log(m),
+  });
   try {
-    client = new ImapClient({
-      host: env.IMAP_HOST,
-      port: parseInt(env.IMAP_PORT || "993"),
-      user: env.IMAP_USER,
-      password: env.IMAP_PASSWORD,
-      logger: (m) => log(m),
-    });
     await client.connect();
     await client.login();
     const sel = await client.select("INBOX");
     log(`SELECT INBOX exists=${sel.exists}`);
 
-    // IDLE 入る前に、既存の UNSEEN があれば先に処理
+    // 既存のUNSEENを先に処理
     await processNewMails(client, env);
 
+    // 55秒 IDLE で push待機
     log(`IDLE 開始 duration=${duration}ms`);
     await client.idle(duration, async (kind) => {
       if (kind === "EXISTS") {
         log(`EXISTS push 検知 → 処理`);
-        await processNewMails(client!, env);
+        await processNewMails(client, env);
       }
       return false;
     });
-
-    await client.logout();
   } catch (e: any) {
     log(`loop エラー: ${e.message}`);
-    try { if (client) await client.logout(); } catch {}
   } finally {
-    // チェーン再呼出 (fire-and-forget)
-    try {
-      await env.SELF.fetch("https://self/loop");
-    } catch (e: any) {
-      log(`chain fetch 失敗 (cron で復活待ち): ${e.message}`);
-    }
+    try { await client.logout(); } catch {}
   }
 }
 
 async function processNewMails(client: ImapClient, env: Env) {
   const uids = await client.searchUnseen();
+  if (uids.length === 0) return;
   log(`UNSEEN: ${uids.length}件`);
-  for (const uid of uids.slice(-10)) { // 最大10件/ループ
+  for (const uid of uids.slice(-10)) {
     try {
       const raw = await client.fetchByUid(uid);
       if (!raw) continue;
       const mail = parseMail(raw);
       if (!mail.messageId) { log(`uid=${uid} skip: msgid無し`); continue; }
 
-      // mailamb Worker に送って下書き生成
       const payload = {
         id: `watcher-${uid}`,
         subject: mail.subject || "(件名なし)",
@@ -125,23 +98,13 @@ async function processNewMails(client: ImapClient, env: Env) {
       };
       const draftRes = await env.MAILAMB.fetch("https://mailamb/api/draft", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": env.MAILAMB_API_KEY,
-        },
+        headers: { "Content-Type": "application/json", "X-API-Key": env.MAILAMB_API_KEY },
         body: JSON.stringify(payload),
       });
-      if (!draftRes.ok) {
-        log(`uid=${uid} 生成失敗: ${draftRes.status}`);
-        continue;
-      }
+      if (!draftRes.ok) { log(`uid=${uid} 生成失敗: ${draftRes.status}`); continue; }
       const draft = await draftRes.json() as any;
-      if (draft.skip) {
-        log(`uid=${uid} skip: ${draft.skip_reason}`);
-        continue;
-      }
+      if (draft.skip) { log(`uid=${uid} skip: ${draft.skip_reason}`); continue; }
 
-      // Drafts に APPEND
       const draftBody = (draft.draft ?? "").replace(/^\s*\[AI下書き\][^\n]*\n+/, "");
       const replyRaw = buildReply({
         fromEmail: env.IMAP_USER,

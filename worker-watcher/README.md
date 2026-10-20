@@ -1,35 +1,35 @@
 # mailamb-watcher
 
-Cloudflare Workers 単体で IMAP IDLE を保持し、新着メールをリアルタイム検知する"サーバーレス母艦"。
+Cloudflare Workers で IMAP IDLE 55秒 窓を 1分ごとに開く "サーバーレス母艦"。
 
 ## これで何ができる
 
-- ✓ **サブ秒レベルのリアルタイム検知** (IMAP IDLE push)
+- ✓ **実質リアルタイム検知** (最大5秒遅延)
 - ✓ **完全無料** (Workers Free Plan のみ)
 - ✓ **既存ドメイン無影響** (CF Email Routing不要、DNS操作ゼロ)
 - ✓ **母艦PC不要** (CF 内で完結)
 - ✓ **既存メール鯖 (Xserver等) そのまま**
+- ✓ **シンプル実装** (chain/heartbeatなし、cron単体で完結)
 
 ## 動作原理
 
 ```
-cron 1分 (保険)
-   ↓ (チェーン切れ検知時のみ)
+cron 毎分 発火
+   ↓
 scheduled handler
    ↓
-fetch /loop
+IMAP接続 (TLS, port 993)
+   ├─ 既存のUNSEEN処理
+   └─ 55秒 IDLE で push 待機
+       └─ EXISTS push → 新着を即処理
    ↓
-IMAP IDLE 90秒保持 (push待機)
-   ├─ EXISTS push → 即処理
-   ├─ UID SEARCH UNSEEN → 新着取得
-   ├─ BODY.PEEK[] で本文取得 (既読立てない)
-   ├─ mailamb Worker 呼出 (AI生成)
-   ├─ IMAP APPEND で Drafts に保存
+切断
    ↓
-90秒後にself-fetch "/loop" でチェーン
-   ↓
-継続 (ギャップほぼゼロ)
+次の cron (60秒後) で次の窓
 ```
+
+**ギャップ 最大5秒** (cron 60秒 - IDLE 55秒 = 5秒)。
+cronのズレも吸収すると実質 2〜5秒遅延で検知。
 
 ## セットアップ
 
@@ -45,55 +45,49 @@ cfauth exec -- npx wrangler secret put IMAP_DRAFTS     # Drafts / INBOX.Drafts /
 cfauth exec -- npx wrangler secret put MAILAMB_API_KEY # mailamb Worker の X-API-Key
 ```
 
-### 2. 任意: heartbeat KV (チェーン生存監視用)
-
-```bash
-cfauth exec -- npx wrangler kv:namespace create "HEARTBEAT_KV"
-# → ID取得して wrangler.toml に追記:
-#   [[kv_namespaces]]
-#   binding = "HEARTBEAT_KV"
-#   id = "<取得したID>"
-```
-
-### 3. デプロイ
+### 2. デプロイ
 
 ```bash
 cfauth exec -- pnpm run deploy
 ```
 
-### 4. 動作確認
+### 3. 動作確認
 
 ```bash
 # health
 curl https://mailamb-watcher.<subdomain>.workers.dev/health
 
-# 手動でループ開始
-curl https://mailamb-watcher.<subdomain>.workers.dev/loop
-
 # tail でログ確認
 cfauth exec -- npx wrangler tail --format pretty
 ```
 
-## 無料枠内の消費想定
+## 無料枠内の消費想定 (10名規模、日30件問い合わせ)
 
-| 項目 | 消費/day | 無料枠/day |
+| 項目 | 消費 | 無料枠 |
 |---|---|---|
-| Workers 呼出 (loop) | ~960 (90s × 960 = 24h) | 100,000 |
-| cron | 1,440 | - |
-| CPU時間 (新着時のみ) | 新着数 × ~10ms | 10ms × 100,000 req |
-| cloudflare:sockets 接続 | 24h 継続 | 制限なし |
+| Workers 呼出 (cron毎分) | 1,440/day | 100,000/day → 1.5% |
+| CPU時間 (処理分のみ) | ~1秒/day合計 | 10ms × 100,000/day → 余裕 |
+| Workers AI (生成+embed) | ~60 neurons/day | 10,000/day → 0.6% |
+| Vectorize queries | ~150/day | 無料30M/月 → 0.001% |
+| KV writes | ~150/day | 1,000/day → 15% |
+| cloudflare:sockets 接続 | 24h継続 | 制限なし |
 
-全部 Free Plan 内。
+**完全無料枠内**。急な大量着信 (日200件超) で KV writes 到達リスクある場合のみ Paid ($5/月) 検討。
 
-## 実装の仕様
+## 実装スペック
+
+- **行数**: 約130行 (index.ts) + 150行 (imap.ts) + 150行 (parser.ts)
+- **chain/heartbeat/service binding**: 使わない
+- **単一 handler** (scheduled のみ)
+- **1接続 1窓**: cron シリアル実行で二重接続リスクなし
 
 ### IMAP プロトコル対応
 
 - LOGIN (平文)
 - SELECT
 - UID SEARCH UNSEEN
-- UID FETCH (BODY.PEEK[]) — 既読フラグ立てない
-- IDLE / DONE
+- UID FETCH (BODY.PEEK[]) ← 既読立てない
+- IDLE / DONE (RFC 2177)
 - APPEND
 - LOGOUT
 - TLS: cloudflare:sockets で port 993 implicit TLS
@@ -102,73 +96,75 @@ cfauth exec -- npx wrangler tail --format pretty
 
 - ✓ Xserver (sv*.xserver.jp)
 - ✓ さくら
-- ✓ 独自メール鯖 (RFC 3501 準拠なら動く)
+- ✓ 独自メール鯖 (RFC 3501 準拠)
 - ✓ Gmail (アプリパスワード必要、`imap.gmail.com`)
-- ✓ M365 (OAuth未対応なので basic auth 必要)
+- ✓ M365 (basic auth のみ、OAuth未対応)
 
-### 対応 IMAP パス
+### 対応 Drafts フォルダパス
 
-- `Drafts` (RFC デフォルト)
-- `INBOX.Drafts` (Xserver等)
+- `Drafts` (デフォルト)
+- `INBOX.Drafts` (Xserver等多い)
 - `下書き` (日本語ロケール)
 - `[Gmail]/Drafts` (Gmail)
 
 → secret `IMAP_DRAFTS` で指定。
 
-### リミット
+## 障害時の挙動
 
-- 1ループで最大10件新着処理
-- 90秒 IDLE (Workers fetch handler 100s上限より余裕)
-- 新着が90秒以内に来ない場合、IDLE終了 → 即チェーン再開
+| シナリオ | 挙動 |
+|---|---|
+| IMAP接続失敗 | その cron 窓はスキップ、次の cron で再試行 (最大1分遅延) |
+| 処理中のクラッシュ | 未処理メールは UNSEEN のまま、次の cron で処理 |
+| Workers CF障害 | 既存メール運用は無事、新規下書きだけ止まる |
+| Xserver鯖障害 | スタッフ送受信も止まる (mailambの問題ではない) |
+
+**単一障害点は cron のみ** (CF edge 自体)。実運用では年数回の数分障害。
 
 ## 既存 mailamb Worker との関係
 
 ```
-                  ┌─────────────────────────┐
-                  │  mailamb-watcher        │
-                  │  (IMAP IDLE 常駐)       │
-                  └──────────┬──────────────┘
-                             │ Service Binding
-                             ▼
-                  ┌─────────────────────────┐
-                  │  mailamb                │
-                  │  (AI生成 + KV管理)      │
-                  └─────────────────────────┘
+┌─────────────────────┐
+│  mailamb-watcher    │ ← このWorker
+│  (IMAP IDLE 窓)     │
+└──────────┬──────────┘
+           │ Service Binding
+           ▼
+┌─────────────────────┐
+│  mailamb            │ ← 既存のまま
+│  (AI生成 + KV管理)  │
+└─────────────────────┘
 ```
 
-mailamb-watcher は mailamb Worker を service binding で呼び出す。
-mailamb 側は既存のまま変更なし。TB拡張も既存のまま使える。
+TB拡張も既存のまま使える。watcher が Drafts に保存したものを TB は普通に IMAP同期で取得。
 
 ## 代替案との比較
 
-| 構成 | 遅延 | コスト | 既存影響 | 母艦PC |
-|---|---|---|---|---|
-| **mailamb-watcher (この構成)** | **~1秒** | **$0** | **ゼロ** | **不要** |
-| 母艦スクリプト (05-mother.ts) | ~1秒 | $0 (PC電気代) | ゼロ | 要 |
-| CF Email Routing | ~5秒 | $0〜年$10 | 要ドメイン | 不要 |
-| CF Cron 1分polling | 60秒 | $0 | ゼロ | 不要 |
+| 構成 | 遅延 | コスト | 既存影響 | 母艦PC | 実装複雑さ |
+|---|---|---|---|---|---|
+| **mailamb-watcher (B版)** | 最大5秒 | $0 | ゼロ | 不要 | 低 |
+| 母艦スクリプト | ~1秒 | $0 (PC電気代) | ゼロ | **要** | 中 |
+| CF Email Routing | ~5秒 | 年$10 or 既存ドメイン | **要ドメイン** | 不要 | 中 |
+| chain方式 (旧) | ~0秒 | $0 | ゼロ | 不要 | **高** |
 
 ## トラブルシュート
 
 ### IMAP接続失敗
 
-- `IMAP_HOST` / `IMAP_PORT` secret 設定確認
-- Xserver等でIMAP外部接続許可設定確認
-- TLS接続のみ対応 (port 993)、STARTTLS (port 143) は現在未対応
+- `IMAP_HOST` / `IMAP_PORT` 確認
+- Xserver等でIMAP外部接続許可設定を確認
+- TLS接続のみ対応 (port 993)、STARTTLS (port 143) は未対応
 
 ### LOGIN失敗
 
-- `IMAP_PASSWORD` に特殊文字 (`\`、`"`) 含まれる場合 escape 問題の可能性
-- アプリパスワード必要な鯖 (Gmail、Workspace) は要発行
+- `IMAP_PASSWORD` に特殊文字 (`\`、`"`) 含まれる場合 escape 問題
+- Gmail/Workspace は アプリパスワード必要
 
 ### Drafts 保存失敗
 
-- `IMAP_DRAFTS` のフォルダ名が実際のパスと一致してるか確認
-- `wrangler tail` で `imap > APPEND "Drafts"` のレスポンス確認
-- Xserverは `INBOX.Drafts` の場合あり
+- `IMAP_DRAFTS` のフォルダ名が実パスと一致してるか確認
+- `wrangler tail` で `[imap] > APPEND "..."` のレスポンス確認
 
-### チェーン切れ
+### 検知遅延が大きい
 
-- `wrangler tail` で `loop エラー` メッセージ確認
-- 1分以内に cron が復活起動する
-- 連続失敗する場合は IMAP 側の問題
+- cron 1分間隔が上限。これより短くは不可
+- 大きなラグ (5秒超) が続くなら Workers 側 CPU/メモリ枠確認
