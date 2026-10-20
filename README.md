@@ -93,8 +93,7 @@ TB内タブでダッシュボードが開く → ナレッジ追加 (ファイ�
 ```
 mailamb/
 ├── README.md
-├── 構成図.md                          mermaid 全体図
-├── mailamb-{faq,flow,oneshot}.md     顧客向け説明資料
+├── doc/                              構成/ツール/手順/機能/運用の5章
 ├── mailamb-sender-package-0.18.1.zip  送信者配布パッケージ (.xpi + 手順書)
 ├── mailamb-admin-0.1.0.xpi           管理者用TB拡張
 │
