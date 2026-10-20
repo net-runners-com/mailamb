@@ -242,19 +242,9 @@ export async function processDraft(env: Env, req: DraftRequest): Promise<DraftRe
     elapsed_ms: Date.now() - t0,
   };
 
-  // 処理済み記録 + 下書き全文保持（TB拡張 + 管理者ダッシュボードが参照）
-  const ttl = 60 * 60 * 24 * 90;
-  await env.PROCESSED.put(req.message_id, "generated", { expirationTtl: ttl });
-  // 元メールのメタ情報も同梱（管理者ダッシュボード用）
-  const stored = {
-    ...response,
-    subject: req.subject,
-    from: req.from,
-    received_at: req.received_at,
-  };
-  await env.PROCESSED.put(`draft:${req.message_id}`, JSON.stringify(stored), {
-    expirationTtl: ttl,
-  });
+  // ミニマム構成: 下書き本体は KV に残さない (呼出元に返すだけ)。
+  // 二重処理防止マーカーだけ軽く残す (24時間)。
+  await env.PROCESSED.put(req.message_id, "generated", { expirationTtl: 60 * 60 * 24 });
 
   // テンプレ使用ログ
   const now = Math.floor(Date.now() / 1000);

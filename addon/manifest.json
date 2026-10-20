@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "mailamb — AI下書き",
-  "version": "0.17.2",
-  "description": "Workers AI下書きをメール表示欄に表示し、送信者を選んで返信できる Thunderbird 拡張",
+  "name": "mailamb — AI下書き (minimal)",
+  "version": "0.18.0",
+  "description": "送信時の二重送信防止 + 送信済バナー表示。下書き生成は worker-watcher が担当する最小構成。",
   "author": "mailamb",
   "icons": {
     "32": "icons/32.png",
@@ -16,25 +16,13 @@
   },
   "permissions": [
     "messagesRead",
-    "messagesImport",
-    "messagesTags",
-    "messagesUpdate",
     "compose",
     "accountsRead",
-    "accountsFolders",
-    "notifications",
     "storage",
     "<all_urls>"
   ],
   "background": {
     "scripts": ["background.js"]
-  },
-  "message_display_action": {
-    "default_title": "AI下書きを見る",
-    "default_icon": {
-      "32": "icons/32.png"
-    },
-    "default_popup": "ui/panel.html"
   },
   "options_ui": {
     "page": "ui/options.html",

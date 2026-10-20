@@ -3,48 +3,40 @@
 <head>
 <meta charset="utf-8">
 <title>mailamb 設定</title>
-<link rel="stylesheet" href="panel.css">
+<style>
+  body { font: 13px/1.5 -apple-system, "Hiragino Kaku Gothic ProN", sans-serif; padding: 18px 22px; width: 420px; }
+  .section { margin-bottom: 14px; }
+  .label { font-size: 11px; color: #6b7280; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  input { width: 100%; padding: 7px 9px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
+  button { padding: 7px 16px; border-radius: 4px; border: 1px solid #2a7fb8; background: #2a7fb8; color: #fff; font-weight: 600; cursor: pointer; }
+  .msg { margin-left: 10px; font-size: 12px; color: #6b7280; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1f26; color: #e5e7eb; }
+    input { background: #0f1419; color: #e5e7eb; border-color: #2e3540; }
+    .label { color: #9aa49b; }
+  }
+</style>
 </head>
-<body style="width:420px">
-  <div class="title">mailamb 設定</div>
+<body>
+  <h3 style="margin:0 0 14px">mailamb 設定</h3>
 
   <div class="section">
     <div class="label">Worker URL</div>
-    <input id="workerUrl" type="text" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);">
+    <input id="workerUrl" type="text" placeholder="https://mailamb.<sub>.workers.dev">
   </div>
 
   <div class="section">
-    <div class="label">API Key (X-API-Key)</div>
-    <input id="apiKey" type="password" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);">
+    <div class="label">API Key</div>
+    <input id="apiKey" type="password">
   </div>
 
   <div class="section">
-    <div class="label">スタッフID (共有メール運用で誰が返信中/送信済かを区別)</div>
-    <input id="staffId" type="text" placeholder="例: tanaka, SK など" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);">
+    <div class="label">スタッフID (重複しない識別子)</div>
+    <input id="staffId" type="text" placeholder="例: tanaka">
   </div>
 
-  <div class="section">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <input id="enableAutoDraft" type="checkbox" style="width:auto;margin:0;">
-      <span>新着メール受信時に AI下書きを自動で Draftsフォルダに保存する</span>
-    </label>
-    <div class="label" style="margin-top:4px;font-weight:400;">
-      オフ: パネルの「Draftsに保存」ボタンで手動保存のみ
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="label">問い合わせ宛先（カンマ区切り）</div>
-    <input id="inquiryAddresses" type="text" placeholder="例: info@yourcompany.com,contact@yourcompany.com" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);">
-    <div class="label" style="margin-top:4px;font-weight:400;">
-      ここに書いた宛先に届いたメールだけ自動下書きする。空欄なら「広告・通知メール」を自動除外する簡易判定のみ。
-    </div>
-  </div>
-
-  <div class="actions" style="border-top:none">
-    <button id="save">保存</button>
-    <span id="msg" class="status"></span>
-  </div>
+  <button id="save">保存</button>
+  <span id="msg" class="msg"></span>
 
   <script src="options.js"></script>
 </body>
