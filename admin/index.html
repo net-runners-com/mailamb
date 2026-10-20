@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mailamb 管理</title>
+<title>mailamb 管理 (minimal)</title>
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
 <header class="topbar">
-  <div class="brand">mailamb <span class="sub">管理画面</span></div>
+  <div class="brand">mailamb <span class="sub">管理画面 (minimal)</span></div>
   <nav class="tabs">
-    <button class="tab active" data-tab="activity">問い合わせ活動</button>
-    <button class="tab" data-tab="knowledge">ナレッジ管理</button>
+    <button class="tab active" data-tab="knowledge">ナレッジ管理</button>
+    <button class="tab" data-tab="sent">送信履歴</button>
     <button class="tab" data-tab="settings">設定</button>
   </nav>
   <div class="connection">
@@ -24,30 +24,7 @@
 
 <main>
 
-<section id="pane-activity" class="pane active">
-  <div class="pane-header">
-    <h2>問い合わせ活動</h2>
-    <div class="meta" id="activityMeta">—</div>
-  </div>
-  <table class="activity">
-    <thead>
-      <tr>
-        <th>受信日時</th>
-        <th>件名</th>
-        <th>送信元</th>
-        <th>意図</th>
-        <th>状態</th>
-        <th>既読</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody id="activityBody">
-      <tr><td colspan="7" class="empty">設定を入力してください</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section id="pane-knowledge" class="pane">
+<section id="pane-knowledge" class="pane active">
   <div class="pane-header">
     <h2>ナレッジ管理</h2>
     <button id="addKnowledgeBtn" class="primary">+ 新規追加</button>
@@ -95,6 +72,26 @@
   </table>
 </section>
 
+<section id="pane-sent" class="pane">
+  <div class="pane-header">
+    <h2>送信履歴</h2>
+    <div class="meta" id="sentMeta">—</div>
+  </div>
+  <table class="activity">
+    <thead>
+      <tr>
+        <th>日時</th>
+        <th>Message-ID</th>
+        <th>状態</th>
+        <th>スタッフ</th>
+      </tr>
+    </thead>
+    <tbody id="sentBody">
+      <tr><td colspan="4" class="empty">設定を入力してください</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <section id="pane-settings" class="pane">
   <h2>設定</h2>
   <div class="form-card">
@@ -106,18 +103,7 @@
     </div>
     <p class="hint">
       設定はこのブラウザのローカルストレージに保存されます。他のPCで使う時は再度入力してください。
-      パスワード/キーはサーバやログに送られません。
     </p>
-  </div>
-</section>
-
-<section id="pane-detail" class="pane modal" hidden>
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3 id="detailTitle">詳細</h3>
-      <button id="detailClose" class="secondary">閉じる</button>
-    </div>
-    <div id="detailBody"></div>
   </div>
 </section>
 

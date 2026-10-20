@@ -1,108 +1,105 @@
-# mailamb — 共有メール AI 自動下書きシステム
+# mailamb — 共有メール AI 自動下書きシステム (minimal 構成)
 
-複数スタッフが共有する問い合わせ用メール（例: `info@yourcompany.com`）に届いた問い合わせに対して、Cloudflare Workers AI が RAG+LLM で返信下書きを自動生成し、各スタッフのメール環境（Thunderbird）にリアルタイム共有します。**AI が下書きを書き、人間が最終確認して送信**する運用。
+複数スタッフが共有する問い合わせ用メール（例: `info@yourcompany.com`）に届いた問い合わせに対して、Cloudflare Workers AI が RAG+LLM で返信下書きを自動生成し、各スタッフの Thunderbird に自動配信します。
 
-- 共有メール 1 アカウント + 複数スタッフ運用（約5名〜数十名規模）
-- 既存メール環境（Xserver / さくら / 独自鯖 / Workspace / M365 等）はそのまま使用
-- MX / SPF / DKIM / DNS 変更なし。鯖側に転送設定を1行追加するだけ
-- 母艦PC不要。Cloudflare + Thunderbird拡張 で完結
-- 既読 / 返信中 / 送信済み の状態を全スタッフ TB で共有し、二重返信を防止
+## 特徴
 
-## デモ
+- ✓ 既存メール鯖 (Xserver / さくら / 独自鯖 / Workspace / M365) に**無影響**
+- ✓ **MX / DNS 変更なし、新規ドメイン追加なし**
+- ✓ **母艦PC不要** (Cloudflare 内で完結)
+- ✓ **完全無料** (Workers Free Plan 内で成立、10名規模想定)
+- ✓ 新着検知 **最大5秒遅延** (実質リアルタイム)
+- ✓ **二重送信防止** (スタッフ間で送信状態を共有)
+- ✓ AI は下書きまで、送信は必ず人間が判断
 
-- 構成図: [`構成図.md`](./構成図.md)
-- フロー: [`mailamb-flow.md`](./mailamb-flow.md) / [`mailamb-flow.txt`](./mailamb-flow.txt)
-- 1枚概要: [`mailamb-oneshot.md`](./mailamb-oneshot.md)
-- FAQ: [`mailamb-faq.md`](./mailamb-faq.md)
+## 構成
+
+```
+顧客メール (info@yourcompany.com)
+    ↓
+Xserver 受信 (既存通り)
+    ↓                              ↓ IMAP IDLE (Cloudflare → Xserver)
+全スタッフ TB                   worker-watcher
+   (既存IMAP同期)                 (CF Workers)
+                                   ↓ 新着検知
+                              mailamb Worker (AI生成)
+                                   ↓
+                              Drafts に IMAP APPEND
+                                   ↓
+                              全スタッフTBに同期で下書き配布
+                                   ↓
+                              スタッフが編集 → 送信
+                                   ↓
+                              TB拡張 が送信前 state 確認・送信後 replied 記録
+```
 
 ## クイックスタート
 
-**本番構築** → [`client-handoff/06_本番構築手順.md`](./client-handoff/06_本番構築手順.md)（10章 / Cloudflare構築 → 鯖転送 → 拡張配布まで一本道）
+### お客様に提案する時
+[client-handoff/00_お読みください.md](./client-handoff/00_%E3%81%8A%E8%AA%AD%E3%81%BF%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84.md) → `01_提案構成` → `04_お客様へお送りするメッセージ`
 
-**スタッフ向け配布** → [`mailamb-staff-package-0.17.2.zip`](./mailamb-staff-package-0.17.2.zip)（.xpi + INSTALL.md + SELF_CHECK.md 入り、32KB）
+### 本番構築する時 (エンジニア or AI 向け)
+[client-handoff/06_本番構築手順.md](./client-handoff/06_%E6%9C%AC%E7%95%AA%E6%A7%8B%E7%AF%89%E6%89%8B%E9%A0%86.md)
 
-## ドキュメント
+6ステップ、所要2〜3時間、$0/月で動く。
 
-### クライアント引き渡し用（最新・推奨）
-| # | 内容 |
-|---|---|
-| [00](./client-handoff/00_お読みください.md) | 入口 |
-| [01](./client-handoff/01_提案構成と導入方針.md) | Bβ構成の提案 |
-| [02](./client-handoff/02_テスト開始前の確認事項.md) | 事前調査リスト |
-| [03](./client-handoff/03_client側AIへの開始指示.md) | お客様側AIへの初動指示 |
-| [04](./client-handoff/04_お客様へお送りするメッセージ.txt) | お客様への説明文テンプレ |
-| [05](./client-handoff/05_コンサルへ確認をお願いするメッセージ.txt) | 当社内レビュー依頼文 |
-| [06](./client-handoff/06_本番構築手順.md) | **本番構築手順**（Cloudflare / 鯖転送 / ナレッジ / 拡張配布 まで） |
-
-### コンポーネント別
-- [`addon/README.md`](./addon/README.md) — Thunderbird 拡張 全機能リファレンス
-- [`addon/INSTALL.md`](./addon/INSTALL.md) — 拡張インストール手順（スタッフ向け）
-- [`addon/SELF_CHECK.md`](./addon/SELF_CHECK.md) — 動作確認手順
-- [`admin/README.md`](./admin/README.md) — 管理画面の起動と操作
-
-### 旧版（Pattern A時代 / 参考）
-`docs/01〜10` は 母艦PC前提の旧構成資料。現行Bβ構成とは一部矛盾あり。
+### スタッフPCに拡張配布
+[mailamb-staff-package-0.18.0.zip](./mailamb-staff-package-0.18.0.zip) を解凍、各PC 10分でインストール。
 
 ## ディレクトリ構成
 
 ```
 mailamb/
-├── README.md                     ← このファイル
-├── 構成図.md                     ← mermaid 全体図
-├── mailamb-flow.{md,txt}         ← フロー図
-├── mailamb-faq.md                ← FAQ
-├── mailamb-staff-package-*.zip   ← スタッフ配布パッケージ
-├── client-handoff/               ← 顧客向けドキュメント一式
-├── docs/                         ← 旧版ドキュメント（Pattern A）
-├── worker/                       ← Cloudflare Worker (RAG+生成+状態管理)
+├── README.md                          ← このファイル
+├── 構成図.md                          ← mermaid 全体図
+├── mailamb-*.{md,txt}                 ← 顧客向けフロー説明資料
+├── mailamb-staff-package-*.zip        ← スタッフ配布パッケージ
+├── client-handoff/                    ← 顧客向けドキュメント (00〜06)
+├── worker/                            ← mailamb Worker (AI生成 + state管理)
 │   ├── src/
 │   ├── migrations/0001_init.sql
 │   └── wrangler.toml
-├── worker-email/                 ← Cloudflare Email Worker (受信)
-│   ├── src/index.ts
+├── worker-watcher/                    ← ★ メインドライバ (CF Workers IMAP IDLE)
+│   ├── src/{index,imap,parser}.ts
 │   └── wrangler.toml
-├── addon/                        ← Thunderbird 拡張 (WebExtension)
-│   ├── manifest.json
+├── addon/                             ← TB拡張 v0.18.0 (minimal mode)
+│   ├── manifest.json (10KB、送信ガード専用)
 │   ├── background.js
-│   ├── ui/{panel,options,doc,confirm,banner}.{html,js,css}
-│   └── icons/
-├── admin/                        ← 管理画面 (静的HTML/CSS/JS)
-│   ├── index.html
-│   ├── admin.{css,js}
-│   └── README.md
-└── poc/                          ← ローカルPoC・評価用 + 母艦スクリプト（オプション）
-    ├── data/
-    ├── lib/
-    ├── scripts/
-    │   ├── 01-ingest.ts
-    │   ├── 02-draft.ts
-    │   ├── 03-eval.ts
-    │   ├── 04-serve.ts
-    │   ├── 05-mother.ts          ← 母艦スクリプト（Bβ本番構成では不要）
-    │   └── 06-upload-to-worker.ts
-    └── ui/
+│   └── ui/
+├── admin/                             ← 管理画面 (ナレッジCRUD + 送信一覧)
+├── poc/
+│   ├── data/                          ← サンプルナレッジ (templates/past_cases/inquiries)
+│   └── scripts/
+│       └── 05-mother.ts               ← 代替案: 母艦PC常駐スクリプト
+├── worker-email/                      ← 代替案: CF Email Routing 版 (ドメインMX変更要)
+└── docs/                              ← Legacy ドキュメント (旧 Pattern A時代)
 ```
 
 ## 技術スタック
 
-- **Cloudflare**: Workers / Workers AI / Vectorize / D1 / R2 / KV / Email Routing + Email Workers / Pages / Access
-- **LLM**: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
-- **Embedding**: `@cf/baai/bge-m3` (1024次元・多言語)
-- **スタッフ側**: Thunderbird 158+ + mailamb 拡張 (WebExtension / 未署名 .xpi)
-- **既存メール環境**: 鯖の種類不問（Xserver / さくら / 独自IMAP / Workspace / M365）
-- **母艦PC**: **不要**
+| 層 | 技術 |
+|---|---|
+| LLM | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (Cloudflare Workers AI) |
+| Embedding | `@cf/baai/bge-m3` (1024次元・多言語) |
+| ベクトル検索 | Cloudflare Vectorize |
+| ナレッジメタ | Cloudflare D1 |
+| ナレッジ本文 | Cloudflare R2 |
+| 状態管理 | Cloudflare KV |
+| IMAP (Watcher) | cloudflare:sockets (自前実装 Minimal IMAP Client) |
+| スタッフ側 | Thunderbird 158+ + mailamb 拡張 |
 
-## コスト目安
+## コスト
 
-| サービス | 月想定 (10名規模) | 無料枠 |
-|---|---|---|
-| Workers requests | 10,000〜30,000 | 100,000/day |
-| Workers AI | 2,000〜5,000 req | 10,000/day |
-| Vectorize | 2,000〜5,000 query | 30,000/month |
-| KV / D1 / R2 | 微少 | 大枠内 |
-| Cloudflare Pages | 無料 | 500 builds/month |
+**$0/月** (10名規模、日30件問い合わせ想定)。Workers Free Plan 範囲内で全部収まる。
 
-実質 **月額 $0〜数ドル**。
+## 代替構成
+
+minimal構成が合わない場合:
+
+- **母艦PC方式** ([poc/scripts/05-mother.ts](./poc/scripts/05-mother.ts)): 常駐PCで IMAP IDLE。CF 使いたくない場合。
+- **CF Email Routing方式** ([worker-email/](./worker-email/)): 既存ドメインの MX を変更してもOK or 別ドメインを CF に追加できる場合。
+
+詳細は [docs/08-mail-environments.md](./docs/08-mail-environments.md) 参照。
 
 ## ライセンス
 

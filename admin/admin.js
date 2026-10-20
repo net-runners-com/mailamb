@@ -1,4 +1,5 @@
-// mailamb 管理画面 - Worker API を叩く SPA
+// mailamb 管理画面 (minimal mode)
+// ナレッジ CRUD + 送信履歴表示 + 設定
 const $ = (id) => document.getElementById(id);
 const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -48,15 +49,13 @@ async function checkConnection() {
   }
 }
 
-// ---- タブ切り替え ----
 function switchTab(name) {
   $$(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
   $$("main > .pane").forEach((p) => p.classList.toggle("active", p.id === `pane-${name}`));
-  if (name === "activity") loadActivity();
   if (name === "knowledge") loadKnowledge();
+  if (name === "sent") loadSent();
 }
 
-// ---- Activity タブ ----
 function fmtTime(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -64,70 +63,42 @@ function fmtTime(iso) {
 }
 function esc(s) { return String(s ?? "").replace(/[<>&"']/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;","'":"&#39;"}[c])); }
 
-async function loadActivity() {
-  const tbody = $("activityBody");
+// ---- Sent 履歴 (/api/admin/activity) ----
+async function loadSent() {
+  const tbody = $("sentBody");
   if (!settings.url) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">設定を入力してください</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="empty">設定を入力してください</td></tr>`;
     return;
   }
-  tbody.innerHTML = `<tr><td colspan="7" class="empty">読み込み中…</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="4" class="empty">読み込み中…</td></tr>`;
   try {
-    const data = await api("/api/admin/activity?limit=200");
-    $("activityMeta").textContent = `${data.count} 件`;
+    const data = await api("/api/admin/activity");
+    $("sentMeta").textContent = `${data.count} 件`;
     if (data.count === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty">まだ下書き生成されたメールはありません</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="empty">まだ送信記録はありません</td></tr>`;
       return;
     }
-    tbody.innerHTML = data.items.map(renderActivityRow).join("");
-    $$("[data-detail]").forEach((btn) => {
-      btn.addEventListener("click", () => showDetail(btn.dataset.detail));
-    });
+    tbody.innerHTML = data.items.map((it) => {
+      const s = it.state ?? {};
+      const kindBadge = s.kind === "replied"
+        ? `<span class="badge replied">✉ 送信済</span>`
+        : s.kind === "claimed"
+          ? `<span class="badge claimed">✏ 返信中</span>`
+          : `<span class="badge none">—</span>`;
+      return `
+        <tr>
+          <td class="from">${fmtTime(s.at)}</td>
+          <td><div class="subject" title="${esc(it.message_id)}">${esc((it.message_id || "").slice(0, 60))}</div></td>
+          <td>${kindBadge}</td>
+          <td>${esc(s.staff ?? "")}</td>
+        </tr>`;
+    }).join("");
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty" style="color:var(--danger)">エラー: ${esc(e.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="empty" style="color:var(--danger)">エラー: ${esc(e.message)}</td></tr>`;
   }
 }
 
-function renderActivityRow(it) {
-  const stateBadge = it.state
-    ? `<span class="badge ${it.state.kind}">${it.state.kind === "replied" ? "✉ 送信済" : "✏ 返信中"} / ${esc(it.state.staff)}</span>`
-    : `<span class="badge none">未着手</span>`;
-  const viewers = (it.views ?? [])
-    .map((v) => `<span class="viewer-pill" title="${esc(v.at)}">${esc(v.staff)}</span>`)
-    .join("");
-  const fromStr = it.from ? `${esc(it.from.name ?? "")} &lt;${esc(it.from.email ?? "")}&gt;` : "—";
-  const idEnc = encodeURIComponent(it.message_id);
-  return `
-    <tr>
-      <td class="from">${fmtTime(it.received_at)}</td>
-      <td><div class="subject" title="${esc(it.subject)}">${esc(it.subject || "(件名なし)")}</div></td>
-      <td class="from">${fromStr}</td>
-      <td><div class="intent" title="${esc(it.intent)}">${esc((it.intent || "").slice(0, 60))}${(it.intent || "").length > 60 ? "…" : ""}</div></td>
-      <td>${stateBadge}</td>
-      <td><div class="viewers">${viewers || '<span class="viewer-pill" style="background:var(--border);color:var(--muted)">0</span>'}</div></td>
-      <td><button class="secondary small" data-detail="${idEnc}">詳細</button></td>
-    </tr>`;
-}
-
-async function showDetail(idEnc) {
-  const data = await api(`/api/draft/by-msgid/${idEnc}`);
-  const modal = $("pane-detail");
-  modal.classList.add("active");
-  $("detailTitle").textContent = data.subject || "(件名なし)";
-  $("detailBody").innerHTML = `
-    <div class="modal-section"><h4>Message-ID</h4><div class="kv">${esc(data.message_id)}</div></div>
-    <div class="modal-section"><h4>送信元</h4><div class="kv">${data.from ? `${esc(data.from.name ?? "")} &lt;${esc(data.from.email ?? "")}&gt;` : "—"}</div></div>
-    <div class="modal-section"><h4>受信日時</h4><div class="kv">${fmtTime(data.received_at)}</div></div>
-    <div class="modal-section"><h4>意図</h4><pre>${esc(data.intent ?? "")}</pre></div>
-    <div class="modal-section"><h4>RAG ヒット</h4><pre>${(data.retrieved ?? []).map((r) => `[${r.type}] ${r.title} (${Number(r.score).toFixed(3)})`).join("\n") || "—"}</pre></div>
-    <div class="modal-section"><h4>AI下書き</h4><pre>${esc(data.draft ?? "")}</pre></div>
-    <div class="modal-section"><h4>状態</h4><pre>${data.state ? JSON.stringify(data.state, null, 2) : "未着手"}</pre></div>
-    <div class="modal-section"><h4>既読者</h4><pre>${JSON.stringify(data.views ?? [], null, 2)}</pre></div>
-  `;
-}
-$("detailClose").addEventListener("click", () => $("pane-detail").classList.remove("active"));
-$("pane-detail").addEventListener("click", (e) => { if (e.target === $("pane-detail")) $("pane-detail").classList.remove("active"); });
-
-// ---- Knowledge タブ ----
+// ---- Knowledge ----
 async function loadKnowledge() {
   const tbody = $("knowledgeBody");
   tbody.innerHTML = `<tr><td colspan="7" class="empty">読み込み中…</td></tr>`;
@@ -154,7 +125,7 @@ async function loadKnowledge() {
 }
 
 async function deleteDoc(doc_id) {
-  if (!confirm(`${doc_id} を無効化しますか？（RAG検索対象から外れます）`)) return;
+  if (!confirm(`${doc_id} を無効化しますか？`)) return;
   try {
     await api(`/api/documents/${encodeURIComponent(doc_id)}`, { method: "DELETE" });
     await loadKnowledge();
@@ -198,7 +169,7 @@ $("k_save").addEventListener("click", async () => {
   }
 });
 
-// ---- Settings タブ ----
+// ---- Settings ----
 $("s_save").addEventListener("click", async () => {
   saveSettings();
   const msg = $("s_msg");
@@ -208,18 +179,17 @@ $("s_save").addEventListener("click", async () => {
   setTimeout(() => (msg.textContent = ""), 2500);
 });
 
-// ---- Tabs + 初期化 ----
 $$(".tab").forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.tab)));
 $("refreshBtn").addEventListener("click", async () => {
   const ok = await checkConnection();
   if (ok) {
     const active = document.querySelector(".tab.active").dataset.tab;
-    if (active === "activity") loadActivity();
     if (active === "knowledge") loadKnowledge();
+    if (active === "sent") loadSent();
   }
 });
 
 loadSettings();
 checkConnection().then((ok) => {
-  if (ok) loadActivity();
+  if (ok) loadKnowledge();
 });
