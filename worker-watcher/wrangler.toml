@@ -1,0 +1,27 @@
+name = "mailamb-watcher"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Service binding to self: チェーン自己呼出用
+[[services]]
+binding = "SELF"
+service = "mailamb-watcher"
+
+# Service binding to mailamb Worker (AI生成API)
+[[services]]
+binding = "MAILAMB"
+service = "mailamb"
+
+# 保険: cron 1分ごとにチェーン切れ検知し復活
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+# IDLE 保持時間 (ms)。95s 以内に収めて fetch handler の wall-clock 100s 以内にする
+IDLE_DURATION_MS = "90000"
+# チェーン切れ検知窓 (ms)。この時間 heartbeat が無ければ cron で復活
+HEARTBEAT_WINDOW_MS = "180000"
+
+[observability]
+enabled = true
