@@ -62,17 +62,15 @@ mailamb/
 ├── worker-watcher/                    ← ★ メインドライバ (CF Workers IMAP IDLE)
 │   ├── src/{index,imap,parser}.ts
 │   └── wrangler.toml
-├── addon/                             ← TB拡張 v0.18.0 (minimal mode)
-│   ├── manifest.json (10KB、送信ガード専用)
+├── addon/                             ← TB拡張 v0.18.0 (minimal mode, 送信ガード)
+│   ├── manifest.json
 │   ├── background.js
 │   └── ui/
-├── admin/                             ← 管理画面 (ナレッジCRUD + 送信一覧)
-├── poc/
-│   ├── data/                          ← サンプルナレッジ (templates/past_cases/inquiries)
-│   └── scripts/
-│       └── 05-mother.ts               ← 代替案: 母艦PC常駐スクリプト
-├── worker-email/                      ← 代替案: CF Email Routing 版 (ドメインMX変更要)
-└── docs/                              ← Legacy ドキュメント (旧 Pattern A時代)
+├── addon-admin/                       ← 管理者用 TB拡張 v0.1.0 (ダッシュボード+ナレッジCRUD)
+└── poc/
+    ├── data/                          ← サンプルナレッジ (templates/past_cases/inquiries)
+    └── scripts/
+        └── 05-mother.ts               ← 代替案: 母艦PC常駐スクリプト
 ```
 
 ## 技術スタック
@@ -96,10 +94,8 @@ mailamb/
 
 minimal構成が合わない場合:
 
-- **母艦PC方式** ([poc/scripts/05-mother.ts](./poc/scripts/05-mother.ts)): 常駐PCで IMAP IDLE。CF 使いたくない場合。
-- **CF Email Routing方式** ([worker-email/](./worker-email/)): 既存ドメインの MX を変更してもOK or 別ドメインを CF に追加できる場合。
-
-詳細は [docs/08-mail-environments.md](./docs/08-mail-environments.md) 参照。
+- **母艦PC方式** ([poc/scripts/05-mother.ts](./poc/scripts/05-mother.ts)): 常駐PCで IMAP IDLE。CF 使いたくない / IMAP接続を内部に閉じたい場合。
+- **CF Email Routing方式**: 新規ドメイン or 独自ドメイン MX を CF に向けられる場合。本リポには同梱していない (別途実装)。
 
 ## ライセンス
 
