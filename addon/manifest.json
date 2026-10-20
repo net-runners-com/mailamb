@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "mailamb — AI下書き (minimal)",
-  "version": "0.18.0",
+  "name": "mailamb — 送信者",
+  "version": "0.18.1",
   "description": "送信時の二重送信防止 + 送信済バナー表示。下書き生成は worker-watcher が担当する最小構成。",
   "author": "mailamb",
   "icons": {

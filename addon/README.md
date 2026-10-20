@@ -1,7 +1,7 @@
-# mailamb Thunderbird 拡張 (minimal mode)
+# mailamb Thunderbird 拡張
 
 ## バージョン
-v0.18.0 (minimal mode)
+v0.18.0
 
 ## 役割
 
@@ -20,12 +20,12 @@ v0.18.0 (minimal mode)
 ### 1. 送信前チェック (`onBeforeSend`)
 送信ボタン押下時に compose の In-Reply-To を取得し、Worker の state を確認:
 - `kind: replied` → 「既に <staff> が送信済」別窓ポップアップ → キャンセルで送信中止
-- `kind: claimed` by 他スタッフ → 「<staff> が返信中」別窓ポップアップ → キャンセルで送信中止
+- `kind: claimed` by 他送信者 → 「<staff> が返信中」別窓ポップアップ → キャンセルで送信中止
 - `kind: claimed` by 自分 → 何も聞かない
 - state 無し → 素通りで送信
 
 ### 2. 送信後記録 (`onAfterSend`)
-送信成功時に元メール msgid で `/api/draft/state` に `kind: replied` POST。他スタッフの TB で開くと即「送信済」バッジ。
+送信成功時に元メール msgid で `/api/draft/state` に `kind: replied` POST。他送信者の TB で開くと即「送信済」バッジ。
 
 ### 3. メール表示バナー (`messageDisplayScripts`)
 開いたメールの msgid で state 問い合わせ。
@@ -41,7 +41,7 @@ TB → ツール → アドオンとテーマ → mailamb → 歯車 → オプ�
 |---|---|
 | Worker URL | `https://mailamb.<subdomain>.workers.dev` |
 | API Key | Worker の `X-API-Key` |
-| スタッフID | 自分の識別子 (`tanaka` 等) |
+| 送信者ID | 自分の識別子 (`tanaka` 等) |
 
 ## 権限 (必要最小)
 
@@ -72,5 +72,5 @@ v0.17.2 で必要だった以下は **削除**:
 
 ## 変更履歴
 
-- **v0.18.0** minimal mode に全面リファクタ。auto-draft, パネル, タグ, 既読トラッキング削除。Worker 側も 4エンドポイントに削減。
+- **v0.18.0** auto-draft, パネル, タグ, 既読トラッキング削除。Worker 側も 4エンドポイントに削減。
 - v0.17.x 以前は multi-feature 版 (main ブランチの git履歴参照)。

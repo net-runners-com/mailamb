@@ -1,6 +1,6 @@
-# mailamb — 共有メール AI 自動下書きシステム (minimal)
+# mailamb — 共有メール AI 自動下書きシステム
 
-複数スタッフが共有する問い合わせ用メール (例: `info@yourcompany.com`) に届いた問い合わせに対して、Cloudflare Workers AI が RAG+LLM で返信下書きを自動生成し、各スタッフの Thunderbird に自動配信。
+複数送信者が共有する問い合わせ用メール (例: `info@yourcompany.com`) に届いた問い合わせに対して、Cloudflare Workers AI が RAG+LLM で返信下書きを自動生成し、各送信者の Thunderbird に自動配信。
 
 ## 特徴
 
@@ -8,14 +8,14 @@
 - ✓ **MX / DNS 変更なし、新規ドメイン追加なし、母艦PC不要**
 - ✓ **完全無料** (Workers Free Plan 内で成立、10名規模想定)
 - ✓ 新着検知 **最大5秒遅延** (実質リアルタイム)
-- ✓ **二重送信防止** (スタッフ間で送信状態を共有)
+- ✓ **二重送信防止** (送信者間で送信状態を共有)
 - ✓ AIは下書きまで、送信は必ず人間が判断
 
 ## 構成 (4コンポーネント)
 
 ```
 顧客メール → Xserver (既存)
-              ├─► 全スタッフ Thunderbird (既存通り)
+              ├─► 全送信者 Thunderbird (既存通り)
               │
               └─► IMAP 直接接続 (TLS)
                      │
@@ -29,9 +29,9 @@
                      ▼
               IMAP APPEND → 共有Drafts
                      ↓
-              全スタッフ TB 同期で見える
+              全送信者 TB 同期で見える
                      ↓
-              スタッフが編集 → 送信
+              送信者が編集 → 送信
                      ↓
               [addon] TB拡張         ← 送信前確認 + 送信済み記録
 
@@ -82,9 +82,9 @@ npx wrangler deploy
 `mailamb-admin-0.1.0.xpi` を TB プロファイルに配置、設定でWorker URL + API Key。
 TB内タブでダッシュボードが開く → ナレッジ追加 (ファイルUP or 直接入力)。
 
-### 6. 各スタッフPCに addon 配布
-`mailamb-staff-package-0.18.0.zip` を解凍、INSTALL.md に沿って各PC 10分。
-3項目設定: Worker URL / API Key / スタッフID。
+### 6. 各送信者PCに addon 配布
+`mailamb-sender-package-0.18.1.zip` を解凍、INSTALL.md に沿って各PC 10分。
+3項目設定: Worker URL / API Key / 送信者ID。
 
 **所要時間 2〜3時間、月額 $0**。
 
@@ -95,7 +95,7 @@ mailamb/
 ├── README.md
 ├── 構成図.md                          mermaid 全体図
 ├── mailamb-{faq,flow,oneshot}.md     顧客向け説明資料
-├── mailamb-staff-package-0.18.0.zip  スタッフ配布パッケージ (.xpi + 手順書)
+├── mailamb-sender-package-0.18.1.zip  送信者配布パッケージ (.xpi + 手順書)
 ├── mailamb-admin-0.1.0.xpi           管理者用TB拡張
 │
 ├── worker/                           ★ mailamb Worker (AI生成 + state管理)
@@ -105,7 +105,7 @@ mailamb/
 ├── worker-watcher/                   ★ CF常駐 IMAP IDLE監視
 │   ├── src/{index,imap,parser}.ts
 │   └── wrangler.toml
-├── addon/                            ★ スタッフ用TB拡張 (送信ガード)
+├── addon/                            ★ 送信者用TB拡張 (送信ガード)
 │   ├── manifest.json
 │   ├── background.js
 │   └── ui/

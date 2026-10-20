@@ -1,6 +1,6 @@
 # mailamb Thunderbird 拡張 インストール・設定手順
 
-対象: 各スタッフPC（Mac / Windows / Linux 共通）  
+対象: 各送信者PC（Mac / Windows / Linux 共通）  
 所要時間: 10分
 
 ---
@@ -10,7 +10,7 @@
 - [ ] **mailamb-x.y.z.xpi** ファイル（拡張本体）
 - [ ] **Worker URL**（例: `https://mailamb.<組織名>.workers.dev`）
 - [ ] **API Key**（64文字の英数字）
-- [ ] **自分のスタッフID**（例: `tanaka` / `suzuki` / `SK` 等、重複しない識別子）
+- [ ] **自分の送信者ID**（例: `tanaka` / `suzuki` / `SK` 等、重複しない識別子）
 
 **メールアカウント**: Thunderbird に業務用の共有メールアカウント（info@〜 等）が既にIMAPで接続されている前提。
 
@@ -96,7 +96,7 @@ TB メニュー → **ツール** → **アドオンとテーマ**
 |---|---|
 | **Worker URL** | 管理者から受け取ったURL |
 | **API Key** | 管理者から受け取ったキー |
-| **スタッフID** | 自分のID（例: `tanaka`） |
+| **送信者ID** | 自分のID（例: `tanaka`） |
 | 新着メール受信時に AI下書きを自動で Draftsフォルダに保存する | ☑ チェック |
 | 問い合わせ宛先 | 空欄のまま or 管理者指示（例: `info@yourcompany.com`） |
 
@@ -142,7 +142,7 @@ TB メニュー → **ツール** → **アドオンとテーマ**
 
 ### 下書きが自動で作られない
 
-- スタッフIDが空 → 必ず入力
+- 送信者IDが空 → 必ず入力
 - 自動保存トグルがオフ → ☑ チェックして保存
 - Worker URL/API Key が間違っている → 管理者に再確認
 - CF Email Routing の転送設定が本番鯖にできていない（管理者側の問題）
